@@ -1,0 +1,62 @@
+#summary Configure sol-dock-r template and server factory
+#labels setup
+
+=WARNING=
+*UNDER CONSTRUCTION*
+
+====Embedded Solr Server====
+In order to run an embedded solr server the optional dependency to 'solr-core'
+
+{{{
+<dependency>
+  <groupId>org.apache.solr</groupId>
+  <artifactId>solr-core</artifactId>
+  <version>${solr.version}</version>
+</dependency>
+}}}
+
+has to be resolved. 
+The constructor argument points to the directory holding the 'solr.xml' configuration file.
+_Note: see [http://static.springsource.org/spring/docs/3.1.0.M1/javadoc-api/org/springframework/util/ResourceUtils.html ResourceUtils] for possible formats_
+
+
+{{{
+<bean id="solrTemplate" class="at.pagu.soldockr.core.SolrTemplate"> 
+  <constructor-arg>
+    <bean class="at.pagu.soldockr.core.EmbeddedSolrServerFactory">
+      <constructor-arg>
+        <value type="java.lang.String">classpath:your/namespace/here/core/config</value>
+      </constructor-arg>
+    </bean>
+  </constructor-arg> 
+</bean>
+}}}
+
+==Authentication Support==
+{{{
+<bean id="solrTemplate" class="at.pagu.soldockr.core.SolrTemplate"> 
+  <constructor-arg> 
+    <bean class="at.pagu.soldockr.core.HttpSolrServerFactory"> 
+      <constructor-arg> 
+        <bean class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer" parent="solrServer" /> 
+      </constructor-arg> 
+      <constructor-arg> 
+        <value type="java.lang.String">${solr.core}</value> 
+      </constructor-arg> 
+      <constructor-arg> 
+        <bean class="org.apache.http.auth.UsernamePasswordCredentials">
+          <constructor-arg> 
+            <value type="java.lang.String">${solr.auth.username}</value> 
+          <constructor-arg> 
+          <constructor-arg> 
+        	<value type="java.lang.String">${solr.auth.password}</value> 
+          <constructor-arg> 
+        </bean>
+      <constructor-arg> 
+        <!-- Use one of the following: BASIC, DIGEST, NTLM -->
+        <value type="java.lang.String">${solr.auth.method}</value> 
+      </constructor-arg> 
+    </bean> 
+  </constructor-arg> 
+</bean>
+}}}
