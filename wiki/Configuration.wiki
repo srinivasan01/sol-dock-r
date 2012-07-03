@@ -1,8 +1,6 @@
 #summary Configure sol-dock-r template and server factory
 #labels setup
 
-=WARNING=
-*UNDER CONSTRUCTION*
 
 ====Embedded Solr Server====
 In order to run an embedded solr server the optional dependency to 'solr-core'
@@ -33,6 +31,8 @@ _Note: see [http://static.springsource.org/spring/docs/3.1.0.M1/javadoc-api/org/
 }}}
 
 ==Authentication Support==
+Configure solr client to work with servers configured for authentication by using the underlying HttpClient.
+
 {{{
 <bean id="solrTemplate" class="at.pagu.soldockr.core.SolrTemplate"> 
   <constructor-arg> 
