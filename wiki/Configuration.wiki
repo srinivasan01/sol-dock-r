@@ -31,7 +31,7 @@ _Note: see [http://static.springsource.org/spring/docs/3.1.0.M1/javadoc-api/org/
 }}}
 
 ==Authentication Support==
-Configure solr client to work with servers configured for authentication by using the underlying HttpClient.
+Configure solr client to work with servers configured for authentication by using the underlying !HttpClient.
 
 {{{
 <bean id="solrTemplate" class="at.pagu.soldockr.core.SolrTemplate"> 
