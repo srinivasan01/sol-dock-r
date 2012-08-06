@@ -1,0 +1,45 @@
+#summary Query Support for 
+#labels query
+
+=WARNING=
+*UNDER CONSTRUCTION*
+
+=== Managing Field Names ===
+Solr offers the ability to transform intput data in many ways. Those manipulated values reside within different fields.
+Imagine a title field
+{{{
+<field name="title" type="string" indexed="true" stored="true" required="false" />
+<field name="title_ci" type="lowercase" indexed="true" stored="false" required="false" />
+}}}
+
+It's recommended to use enums to maintain field names within the application and avoid getting lost.
+
+{{{
+public enum SearchableFields implements Field {
+    TITLE("title", "title_ci");
+    
+    private String fieldName;
+    private String caseIndependentFieldName;
+
+    private SearchableFields(String fieldName) {
+      this(fieldName, null);
+    }
+
+    private SearchableFields(String fieldName, String caseIndependentFieldName) {
+      this.fieldName = fieldName;
+      this.caseIndependentFieldName = caseIndependentFieldName;
+    }
+
+    @Override
+    public String getName() {
+      return fieldName;
+    }
+
+    public String getCaseIndependentFieldName() {
+      return StringUtils.defaultIfBlank(caseIndependentFieldName, fieldName);
+    }
+}
+
+FacetQuery facetQuery = new SimpleFacetQuery(new Criteria(SearchableFields.TITLE.getCaseIndependentFieldName()).startsWith(prefix)));
+facetQuery.setFacetOptions(new FacetOptions(SearchableFields.TITLE));
+}}}
