@@ -9,7 +9,7 @@ For many cases the usage !SolrRepositoryFactory might be sufficient.
 
 Create the Interface Definition according to what is possible in spring-data-commons. Additionally extend !SolrCrudRepository.
 In case @Query was added to the method, place holders (?0, ?1, ?...) within query will be replaced by method call parameters.
-Otherwise SolrRepositryFactory will try to derive the query from the provided method name. 
+Otherwise !SolrRepositoryFactory will try to derive the query from the provided method name. 
 
 {{{
 public interface SolrProductRepository extends SolrCrudRepository<Product, String> {
