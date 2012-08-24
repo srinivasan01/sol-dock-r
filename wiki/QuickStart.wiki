@@ -1,0 +1,67 @@
+#summary Quick Start Guide - Get started with sol-dock-r
+#labels Featured,setup,installation
+
+===Quick Start===
+*NOTE:* !SolrRepositoryFactory will be available from v.0.2.0 on
+
+====Repository Factory=====
+For many cases the usage !SolrRepositoryFactory might be sufficient.
+
+Create the Interface Definition according to what is possible in spring-data-commons. Additionally extend !SolrCrudRepository.
+In case @Query was added to the method, place holders (?0, ?1, ?...) within query will be replaced by method call parameters.
+Otherwise SolrRepositryFactory will try to derive the query from the provided method name. 
+
+{{{
+public interface SolrProductRepository extends SolrCrudRepository<Product, String> {
+
+  //Derived Query will be "q=popularity:<popularity>&start=<page.number>&rows=<page.size>"
+  Page<Product> findByPopularity(Integer popularity, Pageable page);
+
+  //Will execute count before to determine total number of elements
+  //Derived Query will be "q=name:<name>*&start=0&rows=<result of count query for q=name:<value>>"
+  List<Product> findByNameStartingWith(String name);
+
+  //Derived Query will be "q=inStock:true&start=<page.number>&rows=<page.size>"
+  Page<Product> findByAvailableTrue(Pageable page);
+  
+  @Query(SearchableProduct.AVAILABLE_FIELD+":false")
+  Page<Product> findByAvailableFalseUsingAnnotatedQuery(Pageable page);
+  
+}
+
+public class MyProductSearchRepositoryFactory {
+  
+  @Autwired
+  private SolrOperations solrOperations;
+  
+  public SolrProductRepository create() {
+  	return new SolrRepositoryFactory(this.solrOperations).getRepository(SolrProductRepository.class);
+  }
+  
+}
+}}}
+
+====Manual implementation====
+Instead of using the Factory to create your Repository without the need of manually implementing the query, one might create queries by hand.
+
+{{{
+public class SolrProductRepositoryImpl extends SimpleSolrRepository<Product> implements SolrProductRepository {
+
+  @Override
+  public Page<Product> findByPopularity(Integer popularity, Pageable pageable) {
+    Query query = new SimpleQuery(new Criteria(SolrSearchableFields.POPULARITY).is(popularity));
+    query.setPageRequest(pageable); 
+    return getSolrOperations().executeListQuery(query, Product.class);
+  }
+
+  @Override
+  public List<Product> findByNameStartingWith(String namePrefix) {
+    Query query = new SimpleQuery(new Criteria(SolrSearchableFields.NAME).startsWith(namePrefix));
+    long totalElements = getSolrOperations.executeCount(query);
+    query.setPageRequest(new PageRequest(0, totalElements);
+    return getSolrOperations().executeQuery(query, Product.class).getContent();
+  }
+
+  //... and so on....
+}
+}}}
