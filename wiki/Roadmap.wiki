@@ -14,7 +14,7 @@
 *v.0.3.0*: target for 2012-12
  * CDI Support
  * !PagingAndSortingRepository implementation
- * Autodetect !SolrCore via @SolrDocument Annotation
+ * Autodetect !SolrCore via @!SolrDocument Annotation
  
 *v.0.4.0*: early 2013
  * solr 4.0 adaptions
