@@ -2,7 +2,7 @@
 #labels Featured,setup,installation
 
 ===Quick Start===
-*NOTE:* !SolrRepositoryFactory will be available from v.0.2.0 on
+*NOTE:* !SolrRepositoryFactory will be available from v.0.2.0 on<br>
 *NOTE:* Fields have to be annotated with `org.apache.solr.client.solrj.beans.Field`
 
 ====Repository Factory=====
