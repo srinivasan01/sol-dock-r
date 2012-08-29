@@ -1,8 +1,10 @@
-#summary Query Support for 
+#summary Query Support for
 #labels query
 
 === Queries ===
 The provieded Query API allows a more or less fluent creation of queries that can be executed against solr.
+
+*NOTE:* Fields have to be annotated with `org.apache.solr.client.solrj.beans.Field`
 
 ==== Query Creation ====
 
@@ -112,7 +114,7 @@ Facet Queries can be constructed using the same criterions as listed above, with
 
 {{{
 //q=age:32facet=on&facet.field=name&facet.mincount=1&facet.limit=15
-Query query = new SimpleQuery(new Criteria("age").is("32"));
+FacetQuery query = new SimpleFacetQuery(new Criteria("age").is("32"));
 FacetOptions options = new FacetOptions("name");
 options.setFacetLimit(15);
 query.setFacetOptions(options);
