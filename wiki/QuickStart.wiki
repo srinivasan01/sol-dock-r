@@ -65,3 +65,56 @@ public class SolrProductRepositoryImpl extends SimpleSolrRepository<Product> imp
   //... and so on....
 }
 }}}
+
+====Repository with Custom Implementation====
+
+Some cases might require the usage of custom queries along with derived ones. In this case one might pass in the custom repository implementation.
+
+{{{
+public interface CustomSolrRepository {
+
+  Page<Product> findProductsByCustomImplementation(String value, Pageable page);
+	
+}
+
+public class CustomSolrRepositoryImpl implements CustomSolrRepository {
+	
+  private SolrOperations solrTemplate;
+	
+  public CustomSolrRepositoryImpl(SolrOperations solrTemplate) {
+    super();
+    this.solrTemplate = solrTemplate;
+  }
+
+  @Override
+  public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
+    return solrTemplate.executeListQuery(new SimpleQuery(new SimpleStringCriteria("name:"+value))
+      .setPageRequest(page), Product.class);
+  }
+
+}
+}}}
+
+The full repository might look like this, combining default !SolrCrudRepository and !CustomSolrRepository.
+
+{{{
+public interface DerivedSolrProductRepository extends CustomSolrRepository, SolrCrudRepository<Product, String> {
+
+  Page<Product> findByPopularity(Integer popularity, Pageable page);
+
+  List<Product> findByNameStartingWith(String name);
+
+  Page<Product> findByAvailableTrue(Pageable page);
+  
+  @Query(SearchableProduct.AVAILABLE_FIELD+":false")
+  Page<Product> findByAvailableFalseUsingAnnotatedQuery(Pageable page);
+  
+}
+}}}
+
+When creating the Repository via !SolrRepositoryFactory provide the custom implementation as shown below.
+
+{{{
+new SolrRepositoryFactory(this.solrOperations)
+  .getRepository(DerivedSolrProductRepository.class, new CustomSolrRepositoryImpl(this.solrOperations));
+}}}
