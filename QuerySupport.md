@@ -1,0 +1,158 @@
+### Queries ###
+The provieded Query API allows a more or less fluent creation of queries that can be executed against solr.
+
+**NOTE:** Fields have to be annotated with `org.apache.solr.client.solrj.beans.Field`
+
+#### Query Creation ####
+
+**is**
+```
+//q=age:32
+Query query = new SimpleQuery(new Criteria("age").is(32));
+```
+
+**isNot**
+```
+//q=name:-xyz
+Query query = new SimpleQuery(new Criteria("name").isNot("xyz"));
+```
+
+**startsWith**
+```
+//q=name:j73x*
+Query query = new SimpleQuery(new Criteria("name").startWith("j73x"));
+```
+
+**endsWith**
+```
+//! Usage of leading Wildcards is not recommended by solr !
+//q=name:*73r
+Query query = new SimpleQuery(new Criteria("name").endsWith("73r"));
+```
+
+**contains**
+```
+//! Usage of leading Wildcards is not recommended by solr !
+//q=name:*x*
+Query query = new SimpleQuery(new Criteria("name").contains("x"));
+```
+
+**lessThanEqual**
+```
+//q=age:[* TO 32]
+Query query = new SimpleQuery(new Criteria("age").lessThanEqual(32));
+```
+
+**greaterThanEqual**
+```
+//q=age:[32 TO *]
+Query query = new SimpleQuery(new Criteria("age").greaterThanEqual(32));
+```
+
+**between**
+```
+//q=age:[32 TO 33]
+Query query = new SimpleQuery(new Criteria("age").between(32,33));
+```
+
+**in**
+```
+//q=age:(30 31 32 33) 
+Query query = new SimpleQuery(new Criteria("age").in(30, 31, 32, 33));
+```
+
+**expression**
+```
+//q=name:*
+Query query = new SimpleQuery(new Criteria("name").expression("*"));
+```
+
+**fuzzy**
+```
+//q=name:fuzzy~
+Query query = new SimpleQuery(new Criteria("name").fuzzy("fuzzy"));
+```
+
+#### Conjunctions ####
+Criteria can be combined using AND (which is default) and OR.
+
+**AND**
+```
+//q=age:32 AND name:j73*
+Query query = new SimpleQuery(new Criteria("age").is(32).and("name").startsWith("j73"));
+```
+
+**OR**
+```
+//q=age:32 OR name:j73*
+Query query = new SimpleQuery(new Criteria("age").is(32).or("name").startsWith("j73"));
+```
+
+#### Query Options ####
+Set query options to manipulate result size, fields returned...
+
+**Result Size**
+```
+//q=age:32&start=0&rows=25
+Query query = new SimpleQuery(new Criteria("age").is("32"));
+query.setPageRequest(new PageRequest(0, 25));
+```
+
+**Projection**
+```
+//q=age:32&fl=name
+Query query = new SimpleQuery(new Criteria("age").is("32"));
+query.addProjectionOnField(new SimpleField("name"));
+```
+
+
+### Facet Queries ###
+Facet Queries can be constructed using the same criterions as listed above, with the addition to add facet options.
+
+```
+//q=age:32facet=on&facet.field=name&facet.mincount=1&facet.limit=15
+FacetQuery query = new SimpleFacetQuery(new Criteria("age").is("32"));
+FacetOptions options = new FacetOptions("name");
+options.setFacetLimit(15);
+query.setFacetOptions(options);
+```
+
+### Managing Field Names ###
+Solr offers the ability to transform intput data in many ways. Those manipulated values reside within different fields.
+Imagine a title field
+```
+<field name="title" type="string" indexed="true" stored="true" required="false" />
+<field name="title_ci" type="lowercase" indexed="true" stored="false" required="false" />
+```
+
+It's recommended to use enums to maintain field names within the application and avoid getting lost.
+
+```
+public enum SearchableFields implements Field {
+    TITLE("title", "title_ci");
+    
+    private String fieldName;
+    private String caseIndependentFieldName;
+
+    private SearchableFields(String fieldName) {
+      this(fieldName, null);
+    }
+
+    private SearchableFields(String fieldName, String caseIndependentFieldName) {
+      this.fieldName = fieldName;
+      this.caseIndependentFieldName = caseIndependentFieldName;
+    }
+
+    @Override
+    public String getName() {
+      return fieldName;
+    }
+
+    public String getCaseIndependentFieldName() {
+      return StringUtils.defaultIfBlank(caseIndependentFieldName, fieldName);
+    }
+}
+
+FacetQuery facetQuery = new SimpleFacetQuery(new Criteria(SearchableFields.TITLE.getCaseIndependentFieldName()).startsWith(prefix)));
+facetQuery.setFacetOptions(new FacetOptions(SearchableFields.TITLE));
+```

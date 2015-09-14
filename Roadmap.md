@@ -1,0 +1,32 @@
+### ROADMAP ###
+
+#### Planned ####
+**v.0.3.0**: target for 2012-12
+  * CDI Support
+  * PagingAndSortingRepository implementation
+  * Autodetect SolrCore via @SolrDocument Annotation
+
+**v.0.4.0**: early 2013
+  * solr 4.0 adaptions
+  * geospatial queries
+  * ...
+
+#### Executed ####
+**v.0.2.0**: 2012-09
+  * Integration RepositoryFactorySupport that allows creating a solr repository via its interface definition
+  * @Query Annotation processing
+  * Derived PartTreeQueries determined via method name
+  * Range Criteria
+
+**v.0.1.0**: 2012-06
+  * SolrTemplate Support
+  * Default SolrRepository Implementation
+  * Query API
+
+
+
+
+&lt;hr&gt;
+
+
+<sub>Updated: 2012-09-04</sub>
